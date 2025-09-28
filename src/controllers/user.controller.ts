@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { User, type UserInterface } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+import { AuthRequest } from "../middlewares/auth.middleware.js";
 import { generateJsonWebTokenAndSetCookie } from "../utils/generateJwtTokenAndSetCookie.js";
 
 export const  registerUser = async ( req: Request, res: Response ): Promise < void > => {
@@ -126,3 +127,33 @@ export const loginUser = async ( req: Request, res: Response ): Promise < void >
             return;
         }
 }
+
+export const logoutUser = ( req: Request, res: Response ): void => {
+    try {
+
+        res.clearCookie("blogApi").status(200).json({
+            success: true,
+            message: "user logout successfully"
+        });
+
+        if(req.cookies["blogApi"] || req.cookies.blogApi) {
+            res.status(401).json({
+            success: false,
+            message: "failed to login user."
+        });
+
+        return;
+            
+        }
+
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `server error something went wrong: ${error}`
+        })
+        console.log(`error while log out user: ${error}`);
+        
+    }
+}
+

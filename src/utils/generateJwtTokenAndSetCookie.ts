@@ -1,21 +1,23 @@
 import type { Response } from "express";
 import jwt from "jsonwebtoken";
 
-export const generateJsonWebTokenAndSetCookie = async (userId: object, res: Response) => {
+export const generateJsonWebTokenAndSetCookie = async (userId: object, res: Response): Promise < void > => {
     try {
-        const secretKey = process.env.JWT_SECRET_KEY;
-        const token: string = jwt.sign({userId: userId}, secretKey as string, {
-            expiresIn: 1000 * 60 * 60 * 24 // 24 hr
+        const secretKey: string | undefined = process.env.JWT_SECRET_KEY as string;
+        const token: string = jwt.sign({userId}, secretKey, {
+            expiresIn: "24hr"
         })
 
-        if(!token) return res.status(400).json({
+        if(!token) {  
+            res.status(400).json({
             success: false,
-            message: "Failed to generate JWT token."
+            message: "Failed to generate JWT token."            
         })
-        
+        return;
+    }
         res.cookie("blogApi", token);
-
-        return token;
+        // res.send(token);
+        return;
 
     } catch (error) {
         console.log(`error while generating jwt token: ${error}`);
