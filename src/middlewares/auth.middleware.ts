@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload }  from "jsonwebtoken";
-import { User } from "../models/user.model.js";
 
 export interface AuthRequest extends Request {
             userId?: string
@@ -14,12 +13,11 @@ export const authProtect = async ( req: AuthRequest, res: Response, next: NextFu
     try 
     {
         const authToken: string = req.cookies["blogApi"] || req.cookies.blogApi;
-        console.log("authToken : " + authToken);
         
         if(!authToken) {
             res.status(404).json({
                 success: false,
-                message: "JWT Token Not Found"
+                message: "JWT Token Not Found : User Unauthorized please login first to create a post."
             })
             return;
         }
@@ -29,17 +27,6 @@ export const authProtect = async ( req: AuthRequest, res: Response, next: NextFu
 
         req.userId = decoded.userId;
 
-        const authUser = await User.findById(req.userId);
-        if(!authUser) {
-            res.status(403).json({
-                success: false,
-                message: "Unauthorized user exsit."
-            })
-        }
-        
-        console.log(`auth user: ${authUser}`);
-        
-      
         next();
 
     } catch (error) {
