@@ -1,5 +1,7 @@
 
-import mongoose from "mongoose";
+import mongoose, { PaginateModel } from "mongoose";
+import  paginate  from "mongoose-paginate-v2";
+
 
 export interface PostInterface {
     writer: mongoose.Types.ObjectId,
@@ -37,5 +39,8 @@ const postSchema = new mongoose.Schema < PostInterface > ({
     }
 }, {timestamps: true});
 
+postSchema.plugin(paginate);
 
-export const Post = mongoose.model < PostInterface > ("Post", postSchema);
+
+export const Post = mongoose.model< PostInterface, PaginateModel < PostInterface > > ("Post", postSchema);
+
