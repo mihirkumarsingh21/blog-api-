@@ -80,9 +80,6 @@ export const loginUser = async ( req: Request, res: Response ): Promise < void >
                 password: string
             }
 
-            console.table([email, password]);
-            
-
             if(!email || !password ) { 
                 res.json({
                 success: false,
