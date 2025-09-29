@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export const connectToDatabase = async (): Promise<void> => {
     try {
-        const mongodb_uri: string | undefined = process.env.MONGODB_URI;
+        const mongodb_uri: string | undefined = process.env.MONGODB_URI as string;
         if (!mongodb_uri) {
             throw new Error("MONGODB_URI is not available in .env file");
         }
