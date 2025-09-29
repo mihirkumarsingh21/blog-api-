@@ -106,7 +106,7 @@ export const postsInPagination = async (req: AuthRequest, res: Response): Promis
             limit: parseInt(limit)
         }
 
-        const posts = Post.paginate({}, options);
+        const posts = await Post.paginate({}, options);
         if(!posts) {
             res.status(404).json({
                 success: false,
