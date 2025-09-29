@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectToDatabase } from "./config/db.js";
 import userRoute from "./routes/user.routes.js"
 import cookieParser from "cookie-parser";
+import postRoute from "./routes/posts.routes.js";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(cookieParser());
 
 
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/posts", postRoute);
 
 
 
