@@ -1,46 +1,48 @@
-
 import mongoose, { PaginateModel } from "mongoose";
-import  paginate  from "mongoose-paginate-v2";
-
+import paginate from "mongoose-paginate-v2";
 
 export interface PostInterface {
-    writer: mongoose.Types.ObjectId,
-    title: string,
-    description: string,
-    like?: number,
-    image?: string
+  writer: mongoose.Types.ObjectId;
+  title: string;
+  description: string;
+  like?: number;
+  image?: string;
 }
 
-const postSchema = new mongoose.Schema < PostInterface > ({
+const postSchema = new mongoose.Schema<PostInterface>(
+  {
     writer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
 
     title: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
 
     description: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
 
     like: {
-        type: Number,
-        default: 0
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Like",
     },
 
     image: {
-        type: String,
-        default: ""
-    }
-}, {timestamps: true});
+      type: String,
+      default: "",
+    },
+  },
+  { timestamps: true }
+);
 
 postSchema.plugin(paginate);
 
-
-export const Post = mongoose.model< PostInterface, PaginateModel < PostInterface > > ("Post", postSchema);
-
+export const Post = mongoose.model<PostInterface, PaginateModel<PostInterface>>(
+  "Post",
+  postSchema
+);
