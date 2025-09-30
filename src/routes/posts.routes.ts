@@ -1,11 +1,15 @@
 import express from "express";
 import { authProtect } from "../middlewares/auth.middleware.js";
-import { createPost, gettingPost, postsInPagination } from "../controllers/post.controller.js";
+import { createPost, deletePost, gettingPost, postsInPagination, updatePost } from "../controllers/post.controller.js";
 
-
-const route = express();
+const route = express.Router();
 
 route.post("/create", authProtect, createPost);
 route.get("/get-post", authProtect, gettingPost);
 route.get("/get-post/:page/:limit", authProtect, postsInPagination);
+route.put("/update-post/:postId", authProtect, updatePost);
+route.delete("/delete/:postId", authProtect, deletePost);
+
+
+
 export default route;
