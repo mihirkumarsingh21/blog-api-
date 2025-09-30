@@ -5,6 +5,7 @@ import { connectToDatabase } from "./config/db.js";
 import userRoute from "./routes/user.routes.js"
 import cookieParser from "cookie-parser";
 import postRoute from "./routes/posts.routes.js";
+import postLikeRoute from "./routes/post.like.route.js"
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/posts", postRoute);
-
+app.use("/api/v1/likes", postLikeRoute);
 
 
 
