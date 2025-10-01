@@ -3,6 +3,7 @@ import { AuthRequest } from "../middlewares/auth.middleware.js";
 import { isValidObjectId } from "mongoose";
 import { Post } from "../models/post.model.js";
 import { Like } from "../models/post.like.model.js";
+import { User } from "../models/user.model.js";
 
 export const postLike = async (
   req: AuthRequest,
@@ -13,8 +14,7 @@ export const postLike = async (
       postId: string;
     };
 
-    const { userId, like } = req.body as {
-      userId: string;
+    const { like } = req.body as {
       like: string;
     };
 
@@ -26,10 +26,19 @@ export const postLike = async (
       return;
     }
 
-    if (!userId || !like) {
+    const userId = req.userId;
+    if(!userId) {
+      res.status(403).json({
+          success: false,
+          message: "unauthorized user found."
+      })
+      return;
+    }
+
+    if (!like) {
       res.status(400).json({
         success: false,
-        message: "these feilds are required.",
+        message: "like field are required.",
       });
       return;
     }
@@ -38,21 +47,29 @@ export const postLike = async (
     if (!post) {
       res.status(404).json({
         success: false,
-        message: "post not found no post present with this id.",
+        message: "post not found : no post present with this id.",
       });
       return;
     }
 
-    const isUserAlreadyLikePost = await Like.findOne({ userId });
-
-    if (isUserAlreadyLikePost) {
-        
-        res.status(200).json({
-            success: true,
-            message: "post already liked."
+    const user = await User.findById(userId);
+    if(user?.role !== "user") {
+        res.status(400).json({
+          success: false,
+          message: "only auth user can like this post."
         })
-    
         return;
+    }
+    const isUserAlreadyLikePost = await Like.findOne({userId: user?._id, postId: post?._id});
+    
+    if (isUserAlreadyLikePost) {
+     await Like.findOneAndDelete({userId: isUserAlreadyLikePost?.userId, postId: isUserAlreadyLikePost?.postId});
+
+     res.status(200).json({
+      success: true,
+      message: "post unlike successfully."
+     })
+     return;
     }
 
     const postLike = await Like.create({
@@ -69,7 +86,7 @@ export const postLike = async (
         return;
       }
 
-     await Post.findByIdAndUpdate(postId, { $set: { postLikeId: postLike._id}}, {new: true});
+     await Post.findByIdAndUpdate(postId, { $set: { like: postLike._id}}, {new: true});
       
       res.status(200).json({
         success: true,
@@ -86,6 +103,7 @@ export const postLike = async (
       success: false,
       message: `server error something went wrong: ${error}`,
     });
+    return;
   }
 };
 
