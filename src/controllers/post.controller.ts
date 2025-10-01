@@ -8,10 +8,10 @@ export const createPost = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { title, description, like, image } = req.body as {
+    const { title, description, postLikeId, image } = req.body as {
       title: string;
       description: string;
-      like?: number;
+      postLikeId?: string;
       image?: string;
     };
 
@@ -29,7 +29,7 @@ export const createPost = async (
       writer: req.userId,
       title,
       description,
-      like,
+      postLikeId,
       image,
     });
 
