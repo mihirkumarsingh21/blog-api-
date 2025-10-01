@@ -7,7 +7,7 @@ export interface PostLikeType {
 }
 
 const postLikeSchema = new mongoose.Schema < PostLikeType >({
-
+    
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -24,6 +24,7 @@ const postLikeSchema = new mongoose.Schema < PostLikeType >({
         type: Number,
         default: 0
     }
+    
 }, {timestamps: true});
 
 
