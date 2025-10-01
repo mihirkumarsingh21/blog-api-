@@ -5,7 +5,7 @@ export interface PostInterface {
   writer: mongoose.Types.ObjectId;
   title: string;
   description: string;
-  like?: number;
+  postLikeId?: string;
   image?: string;
 }
 
@@ -27,9 +27,10 @@ const postSchema = new mongoose.Schema<PostInterface>(
       required: true,
     },
 
-    like: {
+    postLikeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Like",
+      default: ""
     },
 
     image: {
