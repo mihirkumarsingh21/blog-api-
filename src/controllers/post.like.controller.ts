@@ -46,13 +46,9 @@ export const postLike = async (
     const isUserAlreadyLikePost = await Like.findOne({ userId });
 
     if (isUserAlreadyLikePost) {
-
-         await isUserAlreadyLikePost.updateOne({postId}, {$set: {like: isUserAlreadyLikePost.like}});
-
-         await isUserAlreadyLikePost.save();
-
-        res.status(400).json({
-            success: false,
+        
+        res.status(200).json({
+            success: true,
             message: "post already liked."
         })
     
@@ -73,6 +69,7 @@ export const postLike = async (
         return;
       }
 
+     await Post.findByIdAndUpdate(postId, { $set: { postLikeId: postLike._id}}, {new: true});
       
       res.status(200).json({
         success: true,
