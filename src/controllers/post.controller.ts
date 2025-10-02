@@ -62,7 +62,10 @@ export const gettingPost = async (
   res: Response
 ): Promise<void> => {
   try {
-    const posts = await Post.find().populate("writer", "name");
+    const posts = await Post.find({ writer: req.userId }).populate(
+      "writer",
+      "name"
+    );
     if (!posts) {
       res.status(404).json({
         success: false,
@@ -247,4 +250,71 @@ export const deletePost = async (
   }
 };
 
+export const gettingPostBySearching = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    let { search, page, limit } = req.query as {
+      search: string;
+      page: string;
+      limit: string;
+    };
 
+    if (!search) {
+      res.status(400).json({
+        success: false,
+        message: "search query are not present in your url.",
+      });
+      return;
+    }
+
+    if (!page || !limit) {
+      res.status(400).json({
+        success: false,
+        message: "Page or Limit are not define in your url.",
+      });
+      return;
+    }
+
+    if (parseInt(page) <= 0 || parseInt(limit) <= 0) {
+      res.status(400).json({
+        success: false,
+        message: "page or limit must be greater than 0",
+      });
+      return;
+    }
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+    };
+
+    const posts = await Post.find({ $text: { $search: search } }).paginate(
+      options
+    );
+
+    if (!posts) {
+      res.status(404).json({
+        success: false,
+        message:
+          "post not found : failed to search your post maybe it is not present.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      yourSearchedPost: posts,
+    });
+  } catch (error) {
+    console.log(
+      `error while getting post by searching: ${gettingPostBySearching}`
+    );
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong: ${error}`,
+    });
+    return;
+  }
+};

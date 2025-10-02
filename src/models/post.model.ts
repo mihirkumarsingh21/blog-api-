@@ -5,6 +5,7 @@ export interface PostInterface {
   writer: mongoose.Types.ObjectId;
   title: string;
   description: string;
+  category: string;
   like?: string;
   image?: string;
 }
@@ -42,6 +43,7 @@ const postSchema = new mongoose.Schema<PostInterface>(
 );
 
 postSchema.plugin(paginate);
+postSchema.index({title: "text", description: "text"});
 
 export const Post = mongoose.model<PostInterface, PaginateModel<PostInterface>>(
   "Post",

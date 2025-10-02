@@ -26,6 +26,8 @@ export const authProtect = async ( req: AuthRequest, res: Response, next: NextFu
         const decoded: string | JwtPayload = jwt.verify(authToken, jwtSecrectKey) as JwtPayloadType
 
         req.userId = decoded.userId;
+        console.log(`hello from auth middleware`);
+        
 
         next();
 
