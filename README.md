@@ -10,7 +10,7 @@ It covers essential features like authentication, post management, likes, commen
 
 ---
 
-## ✨ Features Implemented (Phase 1)
+## ✨ Features Implemented 
 - 🔐 User Authentication (JWT)  
 - 👥 Role Based Access Control (RBAC)  
 - 📝 CRUD operations for Posts  
@@ -93,57 +93,65 @@ It covers essential features like authentication, post management, likes, commen
 <img width="1366" height="768" alt="Screenshot 2025-10-03 171824" src="https://github.com/user-attachments/assets/dd3c956d-6ee7-493d-8557-188a304a2443" />
 
 ### Get All Posts  
-`GET /api/posts/get-post`  
-![Get Posts](./screenshots/get_posts.png)  
+`GET /api/v1/posts/get-post`  
+<img width="1366" height="768" alt="Screenshot 2025-10-03 224004" src="https://github.com/user-attachments/assets/6157abff-d1a0-45a4-9635-e641430af53c" />
 
 ### Get Posts with Pagination  
-`GET /api/posts/get-post/:page/:limit`  
-![Pagination](./screenshots/pagination.png)  
+`GET /api/v1/posts/get-post/:page/:limit`  
+<img width="1366" height="768" alt="Screenshot 2025-10-03 223220" src="https://github.com/user-attachments/assets/9b980187-ab47-41a6-8a19-83c808b8ed62" />
 
 ### Get Single Post  
-`GET /api/posts/single-post/:postId`  
-
-### Update Post  
-`PUT /api/posts/update-post/:postId`  
-![Update Post](./screenshots/update_post.png)  
-
-### Delete Post (Soft Delete)  
-`DELETE /api/posts/delete/:postId`  
-![Delete Post](./screenshots/delete_post.png)  
+`GET /api/v1/posts/single-post/:postId`  
+<img width="1366" height="768" alt="Screenshot 2025-10-03 225211" src="https://github.com/user-attachments/assets/978f678a-ac88-4da6-b4b2-24cf1efc2b9f" />
 
 ---
 
 ## 🔹 Like Route
 
 ### Like / Unlike Post  
-`POST /api/posts/like-post/:postId`  
-![Like Post](./screenshots/like_post.png)  
+`POST /api/v1/posts/like-post/:postId`  
+<img width="1366" height="768" alt="Screenshot 2025-10-03 225450" src="https://github.com/user-attachments/assets/fe762e02-e3f8-4344-a2ef-b75d7e4b5d90" />
 
 ---
 
 ## 🔹 Comment Routes
 
 ### Add Comment  
-`POST /api/posts/add-comment/:postId`  
-![Add Comment](./screenshots/add_comment.png)  
+`POST /api/v1/posts/add-comment/:postId`  
+<img width="1366" height="768" alt="Screenshot 2025-10-03 225548" src="https://github.com/user-attachments/assets/60e0e61a-3452-4a87-8842-5ebb73245c04" />
 
 ### Update Comment  
-`PUT /api/posts/post-update/:postId`  
-![Update Comment](./screenshots/update_comment.png)  
+`PUT /api/v1/posts/post-update/:postId`  
+<img width="1366" height="768" alt="Screenshot 2025-10-03 225711" src="https://github.com/user-attachments/assets/80c0eb4a-0a04-47aa-8bdd-3132b3e07c2f" />
 
-### Delete Comment  
-`DELETE /api/posts/delete-comment/:commentId/post/:postId`  
-![Delete Comment](./screenshots/delete_comment.png)  
 
 ---
 
 ## 🔹 Search Route
 
 ### Search Posts  
-`GET /api/posts/search-post?query=keyword`  
-![Search](./screenshots/search.png)  
+`GET /api/v1/posts/search-post?query=keyword`  
+<img width="1366" height="768" alt="Screenshot 2025-10-03 225912" src="https://github.com/user-attachments/assets/eb743682-bdce-44f8-825b-8d386f21b920" />
 
 ---
+
+
+
+---
+
+## 📅 Roadmap (Next Features)
+- 🏷️ Tags & Categories for posts  
+- 📰 Draft & Publish posts  
+- ⭐ Bookmarks / Favorites  
+- 📊 Trending posts logic  
+- 👤 User profile (bio, avatar, followers)  
+- 🛡️ Rate limiting & Caching  
+- 🔔 Notifications system  
+- 🚨 Reporting & Moderation  
+- 📈 Analytics & SEO fields  
+
+---
+
 
 
 
