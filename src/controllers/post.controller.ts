@@ -225,19 +225,25 @@ export const deletePost = async (
       return;
     }
 
-    const deletedPost = await Post.findByIdAndDelete(postId);
-    if (!deletedPost) {
+    const isPostDeleted = await Post.findById(postId);
+   
+    if (isPostDeleted?.isDeleted) {
       res.status(400).json({
         success: false,
         message: "Failed to delete your post or this is already deleted.",
       });
       return;
-    }
+    } else {
+      
+      await Post.findOneAndUpdate({_id: postId}, {$set: { isDeleted: true}});
 
     res.status(200).json({
       success: true,
       message: "your post deleted successfully.",
     });
+    }
+
+    
   } catch (error) {
     console.log(`error while deleting post : ${error}`);
 
@@ -289,6 +295,15 @@ export const gettingPostBySearching = async (
       page: parseInt(page),
       limit: parseInt(limit),
     };
+
+    const isPostAvailable = await Post.findOne({title: search, description: search});
+    if(isPostAvailable?.isDeleted) {
+        res.status(404).json({
+           success: false,
+           message: "this post does not exsit that you are looking for."
+        })
+        return;
+    }
 
     const posts = await Post.find({ $text: { $search: search } }).paginate(
       options
