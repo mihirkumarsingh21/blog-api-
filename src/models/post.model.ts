@@ -44,7 +44,6 @@ const postSchema = new mongoose.Schema<PostInterface>(
       type: Boolean,
       default: false
     }
-    
   },
   { timestamps: true }
 );
