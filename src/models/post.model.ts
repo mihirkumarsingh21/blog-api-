@@ -8,6 +8,7 @@ export interface PostInterface {
   category: string;
   like?: string;
   image?: string;
+  isDeleted: boolean;
 }
 
 const postSchema = new mongoose.Schema<PostInterface>(
@@ -38,6 +39,12 @@ const postSchema = new mongoose.Schema<PostInterface>(
       type: String,
       default: "",
     },
+
+    isDeleted: {
+      type: Boolean,
+      default: false
+    }
+    
   },
   { timestamps: true }
 );
