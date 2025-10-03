@@ -1,6 +1,6 @@
 import type { Response } from "express";
 import { Post, PostInterface } from "../models/post.model.js";
-import { HydratedDocument, isValidObjectId } from "mongoose";
+import mongoose, { HydratedDocument, isValidObjectId } from "mongoose";
 import { AuthRequest } from "../middlewares/auth.middleware.js";
 
 export const createPost = async (
@@ -8,11 +8,10 @@ export const createPost = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { title, description, postLikeId, image } = req.body as {
+    const { title, description } = req.body as {
       title: string;
       description: string;
-      postLikeId?: string;
-      image?: string;
+      viewBy?: mongoose.Types.ObjectId
     };
 
     if (!title || !description) {
@@ -29,8 +28,8 @@ export const createPost = async (
       writer: req.userId,
       title,
       description,
-      postLikeId,
-      image,
+      like: req.userId,
+      viewBy: req.userId
     });
 
     if (!createdPost) {
@@ -66,7 +65,8 @@ export const gettingPost = async (
       "writer",
       "name"
     );
-    if (!posts) {
+
+    if (!posts || posts.length <= 0) {
       res.status(404).json({
         success: false,
         message: "post not found.",
@@ -226,7 +226,7 @@ export const deletePost = async (
     }
 
     const isPostDeleted = await Post.findById(postId);
-   
+
     if (isPostDeleted?.isDeleted) {
       res.status(400).json({
         success: false,
@@ -234,16 +234,16 @@ export const deletePost = async (
       });
       return;
     } else {
-      
-      await Post.findOneAndUpdate({_id: postId}, {$set: { isDeleted: true}});
+      await Post.findOneAndUpdate(
+        { _id: postId },
+        { $set: { isDeleted: true } }
+      );
 
-    res.status(200).json({
-      success: true,
-      message: "your post deleted successfully.",
-    });
+      res.status(200).json({
+        success: true,
+        message: "your post deleted successfully.",
+      });
     }
-
-    
   } catch (error) {
     console.log(`error while deleting post : ${error}`);
 
@@ -296,13 +296,16 @@ export const gettingPostBySearching = async (
       limit: parseInt(limit),
     };
 
-    const isPostAvailable = await Post.findOne({title: search, description: search});
-    if(isPostAvailable?.isDeleted) {
-        res.status(404).json({
-           success: false,
-           message: "this post does not exsit that you are looking for."
-        })
-        return;
+    const isPostAvailable = await Post.findOne({
+      title: search,
+      description: search,
+    });
+    if (isPostAvailable?.isDeleted) {
+      res.status(404).json({
+        success: false,
+        message: "this post does not exsit that you are looking for.",
+      });
+      return;
     }
 
     const posts = await Post.find({ $text: { $search: search } }).paginate(
@@ -329,6 +332,79 @@ export const gettingPostBySearching = async (
     res.status(500).json({
       success: false,
       message: `server error something went wrong: ${error}`,
+    });
+    return;
+  }
+};
+
+export const getSinglePost = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { postId } = req.params;
+    
+    if (!postId) {
+      res.status(400).json({
+        success: false,
+        message: "post id are not present in your url.",
+      });
+      return;
+    }
+
+    if (!isValidObjectId(postId)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid post id.",
+      });
+      return;
+    }
+
+    const isPostExsitWithThisId = await Post.findById(postId);
+    if(!isPostExsitWithThisId) {
+      res.status(404).json({
+          success: false,
+          message: "post not found with this post id."
+      })
+      return;
+    }
+
+    console.log(`is post exsit : ${isPostExsitWithThisId}`);
+    
+
+    const postViewByUser = await Post.findOne({ viewBy: req.userId });
+    if (!postViewByUser) {
+      await Post.findByIdAndUpdate(postId, { $push: { viewBy: req.userId } });
+      const postViewCount = await Post.findOneAndUpdate(
+        { viewBy: req.userId },
+        { $inc: { views: 1 } }
+      ).populate("writer", "name");
+
+      res.status(201).json({
+        success: true,
+        singlePosts: postViewCount,
+      });
+
+      return;
+    } else {
+      const singlePost = await Post.findOne({ viewBy: req.userId }).populate(
+        "viewBy",
+        "name"
+      );
+      res.status(200).json({
+        success: true,
+        singlePosts: singlePost,
+      });
+      return;
+    }
+
+    // const postViewByUser = await Post.findById(postId);
+  } catch (error) {
+    console.log(`error while fecthing single post. ${error}`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong. ${error}`,
     });
     return;
   }
