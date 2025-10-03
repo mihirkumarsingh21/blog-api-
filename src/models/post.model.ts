@@ -5,10 +5,11 @@ export interface PostInterface {
   writer: mongoose.Types.ObjectId;
   title: string;
   description: string;
-  category: string;
-  like?: string;
+  like?: mongoose.Types.ObjectId;
   image?: string;
-  isDeleted: boolean;
+  isDeleted?: boolean;
+  views?: number;
+  viewBy?: mongoose.Types.ObjectId;
 }
 
 const postSchema = new mongoose.Schema<PostInterface>(
@@ -32,7 +33,7 @@ const postSchema = new mongoose.Schema<PostInterface>(
     like: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Like",
-      default: ""
+      default: "",
     },
 
     image: {
@@ -42,14 +43,26 @@ const postSchema = new mongoose.Schema<PostInterface>(
 
     isDeleted: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+
+    views: {
+      type: Number,
+      default: 0,
+    },
+
+    viewBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );
 
 postSchema.plugin(paginate);
-postSchema.index({title: "text", description: "text"});
+postSchema.index({ title: "text", description: "text" });
 
 export const Post = mongoose.model<PostInterface, PaginateModel<PostInterface>>(
   "Post",
