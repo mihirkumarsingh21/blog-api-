@@ -8,6 +8,7 @@ import {
   updatePost,
   gettingPostBySearching,
   getSinglePost,
+  addingCategoryToPost
 } from "../controllers/post.controller.js";
 import { author } from "../middlewares/author.middleware.js";
 
@@ -21,6 +22,9 @@ route.delete("/delete/:postId", authProtect, author, deletePost);
 
 route.get("/search-post", authProtect, gettingPostBySearching);
 
-route.get("/single-post/:postId", authProtect, getSinglePost);
+route.patch("/single-post/:postId", authProtect, getSinglePost);
+
+route.put("/add-cateory/:postId", authProtect, addingCategoryToPost);
+
 
 export default route;
