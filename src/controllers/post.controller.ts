@@ -447,7 +447,7 @@ export const addingCategoryToPost = async (req: AuthRequest, res: Response): Pro
           return;
         }
 
-        const post = await Post.findByIdAndUpdate(postId, {$push: { category }}, {new: true});
+        const post = await Post.findByIdAndUpdate(postId, {$set: { category }}, {new: true});
         if(!post) {
           res.status(400).json({
             success: false,
@@ -469,4 +469,41 @@ export const addingCategoryToPost = async (req: AuthRequest, res: Response): Pro
         })
         return;
     }
+}
+
+export const gettingPostByCategory = async (req: AuthRequest, res: Response): Promise < void > => {
+  try {
+      const {categoryName} = req.params;
+      if(!categoryName) {
+        res.status(400).json({
+          success: false,
+          message: "category name are not present is your url."
+        })
+        return;
+      }
+
+      const post = await Post.find({category: {$in: [categoryName]}});
+      if(!post) {
+        res.status(404).json({
+          success: false,
+          message: "post not found with this category name."
+        })
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        postByCategory: post
+      })
+
+
+  } catch (error) {
+    console.log(`error while getting post by category: ${error}`);
+    
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong: ${error}`
+    })
+    return;
+  }
 }
