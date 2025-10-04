@@ -5,7 +5,7 @@
 ![Express](https://img.shields.io/badge/Express.js-4.x-lightgrey?logo=express)
 ![MongoDB](https://img.shields.io/badge/MongoDB-6.x-darkgreen?logo=mongodb)
 
-🚀 This project is created to **explore and learn TypeScript** by building a fully functional **Blog API backend**.  
+🚀 This project is created to **explore and learn TypeScript** by building **Blog API backend**.  
 It covers essential features like authentication, post management, likes, comments, pagination, search, and more.  
 
 ---
