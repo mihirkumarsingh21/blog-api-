@@ -8,7 +8,8 @@ import {
   updatePost,
   gettingPostBySearching,
   getSinglePost,
-  addingCategoryToPost
+  addingCategoryToPost,
+  gettingPostByCategory
 } from "../controllers/post.controller.js";
 import { author } from "../middlewares/author.middleware.js";
 
@@ -25,6 +26,7 @@ route.get("/search-post", authProtect, gettingPostBySearching);
 route.patch("/single-post/:postId", authProtect, getSinglePost);
 
 route.put("/add-cateory/:postId", authProtect, addingCategoryToPost);
+route.get("/posts-by-category/:categoryName", authProtect, gettingPostByCategory)
 
 
 export default route;
