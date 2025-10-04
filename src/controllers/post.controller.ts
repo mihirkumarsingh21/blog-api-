@@ -1,7 +1,8 @@
 import type { Response } from "express";
-import { Post, PostInterface } from "../models/post.model.js";
+import  { Post, PostInterface } from "../models/post.model.js";
 import mongoose, { HydratedDocument, isValidObjectId } from "mongoose";
 import { AuthRequest } from "../middlewares/auth.middleware.js";
+import { rmSync } from "fs";
 
 export const createPost = async (
   req: AuthRequest,
@@ -409,3 +410,62 @@ export const getSinglePost = async (
     return;
   }
 };
+
+
+
+export const addingCategoryToPost = async (req: AuthRequest, res: Response): Promise < void > => {
+    try {
+        const postId = req.params;
+        const { category } = req.body as {
+            category: string
+        }
+
+        if(!category || category === undefined) {
+          res.status(400).json({
+            success: false,
+            message: "Category field not provided."
+          })
+          return;
+        }
+        if(!postId) {
+          res.status(400).json({
+            success: false,
+            message: "post id are not present in your url."
+          })
+          return;
+        }
+
+        console.log(`post id: ${postId}`);
+        
+
+        if(!isValidObjectId(postId)) {
+          res.status(400).json({
+            success: false,
+            message: "Invalid post id"
+          })
+          return;
+        }
+
+        const post = await Post.findByIdAndUpdate(postId, {$push: { category }});
+        if(!post) {
+          res.status(400).json({
+            success: false,
+            message: "Failed to add category Or with this id there is not any post present."
+          })
+          return;
+        }
+
+        res.status(201).json({
+            success: true,
+            message: "category added successfully to your post."
+        })
+
+    } catch (error) {
+        console.log(`error while adding category to the post: ${error}`);
+        res.status(500).json({
+            success: false,
+            message: `server error something went wrong :${error}`
+        })
+        return;
+    }
+}
