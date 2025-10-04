@@ -2,7 +2,6 @@ import type { Response } from "express";
 import  { Post, PostInterface } from "../models/post.model.js";
 import mongoose, { HydratedDocument, isValidObjectId } from "mongoose";
 import { AuthRequest } from "../middlewares/auth.middleware.js";
-import { rmSync } from "fs";
 
 export const createPost = async (
   req: AuthRequest,
@@ -415,18 +414,12 @@ export const getSinglePost = async (
 
 export const addingCategoryToPost = async (req: AuthRequest, res: Response): Promise < void > => {
     try {
-        const postId = req.params;
+        const {postId}= req.params;
         const { category } = req.body as {
             category: string
         }
 
-        if(!category || category === undefined) {
-          res.status(400).json({
-            success: false,
-            message: "Category field not provided."
-          })
-          return;
-        }
+     
         if(!postId) {
           res.status(400).json({
             success: false,
@@ -446,7 +439,15 @@ export const addingCategoryToPost = async (req: AuthRequest, res: Response): Pro
           return;
         }
 
-        const post = await Post.findByIdAndUpdate(postId, {$push: { category }});
+           if(!category || category === undefined) {
+          res.status(400).json({
+            success: false,
+            message: "Category field not provided."
+          })
+          return;
+        }
+
+        const post = await Post.findByIdAndUpdate(postId, {$push: { category }}, {new: true});
         if(!post) {
           res.status(400).json({
             success: false,
