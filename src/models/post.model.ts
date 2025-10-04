@@ -1,6 +1,7 @@
 import mongoose, { PaginateModel } from "mongoose";
 import paginate from "mongoose-paginate-v2";
 
+
 export interface PostInterface {
   writer: mongoose.Types.ObjectId;
   title: string;
@@ -10,6 +11,8 @@ export interface PostInterface {
   isDeleted?: boolean;
   views?: number;
   viewBy?: mongoose.Types.ObjectId;
+  tags: string[];
+  category: string;
 }
 
 const postSchema = new mongoose.Schema<PostInterface>(
@@ -57,6 +60,18 @@ const postSchema = new mongoose.Schema<PostInterface>(
         ref: "User",
       },
     ],
+
+    tags: {
+      type: [String],
+      default: []
+    },
+
+    category: {
+      type: String,
+      default: "general"
+    }
+
+
   },
   { timestamps: true }
 );
