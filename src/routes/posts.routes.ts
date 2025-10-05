@@ -9,7 +9,12 @@ import {
   gettingPostBySearching,
   getSinglePost,
   addingCategoryToPost,
-  gettingPostByCategory
+  gettingPostByCategory,
+  addingTagToThePost,
+  gettingPostByTag,
+  gettingDraftPosts,
+  gettingPublishedPost,
+  addingPostInBookMark
 } from "../controllers/post.controller.js";
 import { author } from "../middlewares/author.middleware.js";
 
@@ -27,6 +32,15 @@ route.patch("/single-post/:postId", authProtect, getSinglePost);
 
 route.put("/add-cateory/:postId", authProtect, addingCategoryToPost);
 route.get("/posts-by-category/:categoryName", authProtect, gettingPostByCategory);
+route.put("/add-tag/:postId", authProtect, addingTagToThePost);
+route.get("/post-by-tag/:tagName", authProtect, gettingPostByTag);
+
+route.get("/get-draft-posts", authProtect, gettingDraftPosts);
+
+route.get("/get-published-post", gettingPublishedPost);
+
+route.post("/bookmark/:postId", authProtect, addingPostInBookMark);
+
 
 
 export default route;
