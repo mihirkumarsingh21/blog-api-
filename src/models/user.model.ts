@@ -5,6 +5,7 @@ export interface UserInterface {
   email: string;
   passwordHash: string;
   role: string;
+  bookMarkedPost: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +33,12 @@ const userSchema = new mongoose.Schema < UserInterface > (
       type: String,
       default: "user",
       enum: ["user", "author"]
+    },
+
+      bookMarkedPost: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+      default: []
     }
   },
   { timestamps: true }
