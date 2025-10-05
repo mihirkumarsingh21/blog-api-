@@ -1,7 +1,8 @@
 import type { Response } from "express";
-import  { Post, PostInterface } from "../models/post.model.js";
+import { Post, PostInterface } from "../models/post.model.js";
 import mongoose, { HydratedDocument, isValidObjectId } from "mongoose";
 import { AuthRequest } from "../middlewares/auth.middleware.js";
+import { User } from "../models/user.model.js";
 
 export const createPost = async (
   req: AuthRequest,
@@ -11,7 +12,7 @@ export const createPost = async (
     const { title, description } = req.body as {
       title: string;
       description: string;
-      viewBy?: mongoose.Types.ObjectId
+      viewBy?: mongoose.Types.ObjectId;
     };
 
     if (!title || !description) {
@@ -29,7 +30,8 @@ export const createPost = async (
       title,
       description,
       like: req.userId,
-      viewBy: req.userId
+      viewBy: req.userId,
+
     });
 
     if (!createdPost) {
@@ -343,7 +345,7 @@ export const getSinglePost = async (
 ): Promise<void> => {
   try {
     const { postId } = req.params;
-    
+
     if (!postId) {
       res.status(400).json({
         success: false,
@@ -361,16 +363,15 @@ export const getSinglePost = async (
     }
 
     const isPostExsitWithThisId = await Post.findById(postId);
-    if(!isPostExsitWithThisId) {
+    if (!isPostExsitWithThisId) {
       res.status(404).json({
-          success: false,
-          message: "post not found with this post id."
-      })
+        success: false,
+        message: "post not found with this post id.",
+      });
       return;
     }
 
     console.log(`is post exsit : ${isPostExsitWithThisId}`);
-    
 
     const postViewByUser = await Post.findOne({ viewBy: req.userId });
     if (!postViewByUser) {
@@ -410,95 +411,240 @@ export const getSinglePost = async (
   }
 };
 
-
-
-export const addingCategoryToPost = async (req: AuthRequest, res: Response): Promise < void > => {
-    try {
-        const {postId}= req.params;
-        const { category } = req.body as {
-            category: string
-        }
-
-     
-        if(!postId) {
-          res.status(400).json({
-            success: false,
-            message: "post id are not present in your url."
-          })
-          return;
-        }
-
-        console.log(`post id: ${postId}`);
-        
-
-        if(!isValidObjectId(postId)) {
-          res.status(400).json({
-            success: false,
-            message: "Invalid post id"
-          })
-          return;
-        }
-
-           if(!category || category === undefined) {
-          res.status(400).json({
-            success: false,
-            message: "Category field not provided."
-          })
-          return;
-        }
-
-        const post = await Post.findByIdAndUpdate(postId, {$set: { category }}, {new: true});
-        if(!post) {
-          res.status(400).json({
-            success: false,
-            message: "Failed to add category Or with this id there is not any post present."
-          })
-          return;
-        }
-
-        res.status(201).json({
-            success: true,
-            message: "category added successfully to your post."
-        })
-
-    } catch (error) {
-        console.log(`error while adding category to the post: ${error}`);
-        res.status(500).json({
-            success: false,
-            message: `server error something went wrong :${error}`
-        })
-        return;
-    }
-}
-
-export const gettingPostByCategory = async (req: AuthRequest, res: Response): Promise < void > => {
+export const addingCategoryToPost = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
-      const {categoryName} = req.params;
-      if(!categoryName) {
-        res.status(400).json({
-          success: false,
-          message: "category name are not present is your url."
-        })
-        return;
-      }
+    const { postId } = req.params;
+    const { category } = req.body as {
+      category: string;
+    };
 
-      const post = await Post.find({category: {$in: [categoryName]}});
-      if(!post) {
-        res.status(404).json({
-          success: false,
-          message: "post not found with this category name."
-        })
-        return;
-      }
+    if (!postId) {
+      res.status(400).json({
+        success: false,
+        message: "post id are not present in your url.",
+      });
+      return;
+    }
 
-      res.status(200).json({
-        success: true,
-        postByCategory: post
-      })
+    if (!isValidObjectId(postId)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid post id",
+      });
+      return;
+    }
 
+    if (!category || category === undefined) {
+      res.status(400).json({
+        success: false,
+        message: "Category field not provided.",
+      });
+      return;
+    }
 
+    const post = await Post.findByIdAndUpdate(
+      postId,
+      { $set: { category } },
+      { new: true }
+    );
+    if (!post) {
+      res.status(400).json({
+        success: false,
+        message:
+          "Failed to add category Or with this id there is not any post present.",
+      });
+      return;
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "category added successfully to your post.",
+    });
+
+    return;
+  } catch (error) {
+    console.log(`error while adding category to the post: ${error}`);
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong :${error}`,
+    });
+    return;
+  }
+};
+
+export const gettingPostByCategory = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { categoryName } = req.params;
+    if (!categoryName) {
+      res.status(400).json({
+        success: false,
+        message: "category name are not present is your url.",
+      });
+      return;
+    }
+
+    const post = await Post.find({ category: { $in: [categoryName] } });
+    if (!post) {
+      res.status(404).json({
+        success: false,
+        message: "post not found with this category name.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      postByCategory: post,
+    });
   } catch (error) {
     console.log(`error while getting post by category: ${error}`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong: ${error}`,
+    });
+    return;
+  }
+};
+
+export const addingTagToThePost = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { postId } = req.params;
+    const { postTags } = req.body as {
+      postTags: string[];
+    };
+
+    if (!postTags || postTags?.length <= 0) {
+      res.status(400).json({
+        success: false,
+        message: "tags are not provided yet OR your tags are empty.",
+      });
+      return;
+    }
+
+    if (!postId) {
+      res.status(400).json({
+        success: false,
+        message: "Post id are not present in your url.",
+      });
+      return;
+    }
+
+    if (!isValidObjectId(postId)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid post id.",
+      });
+      return;
+    }
+
+    const addingTags = await Post.findByIdAndUpdate(
+      postId,
+      {
+        $addToSet: { tags: { $each: postTags } },
+      },
+      { new: true }
+    );
+
+    if (!addingTags) {
+      res.status(400).json({
+        success: false,
+        message: "failed to add tags.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      addingTags,
+    });
+    return;
+  } catch (error) {
+    console.log(`error while adding tag to the post: ${error}`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong : ${error}`,
+    });
+    return;
+  }
+};
+
+export const gettingPostByTag = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { tagName } = req.params;
+    if (!tagName) {
+      res.status(400).json({
+        success: false,
+        message: "Tag name is not present in your url.",
+      });
+      return;
+    }
+
+    const post = await Post.find({ tags: { $in: tagName } });
+    if (!post || post.length <= 0) {
+      res.status(404).json({
+        success: false,
+        message: "post not found with this tag name.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      postByTags: post,
+    });
+  } catch (error) {
+    console.log(`error while getting post by tag :${error}`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong : ${error}`,
+    });
+    return;
+  }
+};
+
+
+export const gettingDraftPosts = async (req: AuthRequest, res: Response): Promise < void > => {
+  try {
+     const {postStatus} = req.query;
+     if(!postStatus) {
+        res.status(400).json({
+          success: false,
+          message: "post status are not present in your url"
+        })
+        return;
+     }
+
+     const post = await Post.find({status: postStatus});
+     if(!post || post.length <= 0) {
+        res.status(404).json({
+          success: false,
+          message: "post not found please send your post status"
+        })
+        return;
+     }
+
+     res.status(200).json({
+        success: true,
+        drafPosts: post
+     })
+
+  } catch (error) {
+    console.log(`error while getting draf post`);
     
     res.status(500).json({
       success: false,
@@ -506,4 +652,140 @@ export const gettingPostByCategory = async (req: AuthRequest, res: Response): Pr
     })
     return;
   }
+}
+
+export const gettingPublishedPost = async (req: AuthRequest, res: Response): Promise < void > => {
+  try {
+      const {publishedPost} = req.query as {
+          publishedPost: string
+      }
+
+      if(!publishedPost) {
+        res.status(400).json({
+            success: false,
+            message: "post status are not present in your url."
+        })
+        return;
+      }
+
+      const post = await Post.find({status: publishedPost});
+      if(!post || post.length <= 0) {
+          res.status(404).json({
+              success: false,
+              message: "failed to get published post Or there is no published post."
+          })
+          return;
+      }
+
+      res.status(200).json({
+          sucess: true,
+          publishedPosts: post
+      })
+
+  } catch (error) {
+    console.log(`error while getting published post: ${error}`);
+    
+    res.status(500).json({
+        success: false,
+        message: `server error something went wrong: ${error}`
+    })
+    return;
+  }
+}
+
+
+export const addingPostInBookMark = async (req: AuthRequest, res: Response): Promise < void > => {
+    try {
+        const {postId} = req.params as {
+          postId: string
+        };
+        if(!postId) {
+            res.status(400).json({
+                success: false,
+                message: "post id are not present in your url."
+            })
+            return;
+        }
+
+        if(!isValidObjectId(postId)) {
+            res.status(400).json({
+                success: false,
+                message: "Invalid post id."
+            })
+            return;
+        }
+
+        const post = await Post.findById(postId);
+        if(!post) {
+            res.status(404).json({
+              success: false,
+              message: "there is no any post are present with this post id."
+            })
+            return;
+        }
+
+        const user =  await User.findOne({bookMarkedPost: postId});
+        // await User.findOne({
+        //   $and: [
+        //     {
+        //       _id: req.userId
+        //     },
+        //     {
+        //       bookMarkedPost: postId
+        //     }
+        //   ]
+        // });
+
+    
+        if(!user) {
+
+           const addedPostInBookMarked = await User.findByIdAndUpdate(req.userId, {$push: {bookMarkedPost: postId}}, {new: true});
+           res.status(200).json({
+              success: true,
+              message: "post bookmarked successfully.",
+              bookmarkedPost: addedPostInBookMarked?.bookMarkedPost
+           })
+           return;
+
+        } else {
+           const removingPostFromBookMarked = await User.findByIdAndUpdate(req.userId, {$push: {bookMarkedPost: postId}}, {new: true});
+
+              res.status(200).json({
+              success: true,
+              message: "post bookmarked successfully.",
+              bookmarkedPost: removingPostFromBookMarked?.bookMarkedPost
+           })
+           return;
+        }
+
+
+
+
+        // const isPostAreBookMarked = user?.bookMarkedPost;
+        // if(!isPostAreBookMarked) {
+        //    await User.findOneAndUpdate({bookMarkedPost: postId}, {$push: {bookMarkedPost: postId}});
+        //    res.status(200).json({
+        //       success: true,
+        //       message: "bookmarked successfully."
+        //    })
+        //    return;
+        // } else{
+        //    await User.findOneAndUpdate({bookMarkedPost: postId}, {$pull: {bookMarkedPost: postId}});
+
+        //     res.status(200).json({
+        //       success: true,
+        //       message: "post remove from bookmarked."
+        //    })
+        //    return;
+        // }
+
+    } catch (error) {
+        console.log(`error while adding post into the bookmarked: ${error}`);
+        
+        res.status(500).json({
+            success: false,
+            message: `server error something went wrong :${error}`
+        })
+        return;
+    }
 }
