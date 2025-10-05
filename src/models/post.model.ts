@@ -13,6 +13,8 @@ export interface PostInterface {
   viewBy?: mongoose.Types.ObjectId;
   tags: string[];
   category: string;
+  status: string;
+  bookMarkedPost: string[]
 }
 
 const postSchema = new mongoose.Schema<PostInterface>(
@@ -69,9 +71,13 @@ const postSchema = new mongoose.Schema<PostInterface>(
     category: {
       type: String,
       default: "general"
-    }
+    },
 
-
+    status: {
+      type: String,
+      enum: ["draft", "published"],
+      default: "draft"
+    },
   },
   { timestamps: true }
 );
