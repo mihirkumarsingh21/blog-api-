@@ -31,7 +31,6 @@ export const createPost = async (
       description,
       like: req.userId,
       viewBy: req.userId,
-
     });
 
     if (!createdPost) {
@@ -617,175 +616,249 @@ export const gettingPostByTag = async (
   }
 };
 
-
-export const gettingDraftPosts = async (req: AuthRequest, res: Response): Promise < void > => {
+export const gettingDraftPosts = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
-     const {postStatus} = req.query;
-     if(!postStatus) {
-        res.status(400).json({
-          success: false,
-          message: "post status are not present in your url"
-        })
-        return;
-     }
+    const { postStatus } = req.query;
+    if (!postStatus) {
+      res.status(400).json({
+        success: false,
+        message: "post status are not present in your url",
+      });
+      return;
+    }
 
-     const post = await Post.find({status: postStatus});
-     if(!post || post.length <= 0) {
-        res.status(404).json({
-          success: false,
-          message: "post not found please send your post status"
-        })
-        return;
-     }
+    const post = await Post.find({ status: postStatus });
+    if (!post || post.length <= 0) {
+      res.status(404).json({
+        success: false,
+        message: "post not found please send your post status",
+      });
+      return;
+    }
 
-     res.status(200).json({
-        success: true,
-        drafPosts: post
-     })
-
+    res.status(200).json({
+      success: true,
+      drafPosts: post,
+    });
   } catch (error) {
     console.log(`error while getting draf post`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong: ${error}`,
+    });
+    return;
+  }
+};
+
+export const gettingPublishedPost = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { publishedPost } = req.query as {
+      publishedPost: string;
+    };
+
+    if (!publishedPost) {
+      res.status(400).json({
+        success: false,
+        message: "post status are not present in your url.",
+      });
+      return;
+    }
+
+    const post = await Post.find({ status: publishedPost });
+    if (!post || post.length <= 0) {
+      res.status(404).json({
+        success: false,
+        message: "failed to get published post Or there is no published post.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      sucess: true,
+      publishedPosts: post,
+    });
+  } catch (error) {
+    console.log(`error while getting published post: ${error}`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong: ${error}`,
+    });
+    return;
+  }
+};
+
+export const addingPostInBookMark = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { postId } = req.params as {
+      postId: string;
+    };
+    if (!postId) {
+      res.status(400).json({
+        success: false,
+        message: "post id are not present in your url.",
+      });
+      return;
+    }
+
+    if (!isValidObjectId(postId)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid post id.",
+      });
+      return;
+    }
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      res.status(404).json({
+        success: false,
+        message: "there is no any post are present with this post id.",
+      });
+      return;
+    }
+
+    const user = await User.findOne({ bookMarkedPost: postId });
+
+    if (!user) {
+      const addedPostInBookMarked = await User.findByIdAndUpdate(
+        req.userId,
+        { $addToSet: { bookMarkedPost: postId } },
+        { new: true }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "post bookmarked successfully.",
+        bookmarkedPost: addedPostInBookMarked?.bookMarkedPost,
+      });
+      return;
+    } else {
+      const removingPostFromBookMarked = await User.findByIdAndUpdate(
+        req.userId,
+        { $pull: { bookMarkedPost: postId } },
+        { new: true }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "post bookmarked remove successfully.",
+        bookmarkedPost: removingPostFromBookMarked?.bookMarkedPost,
+      });
+      return;
+    }
+
+    // const isPostAreBookMarked = user?.bookMarkedPost;
+    // if(!isPostAreBookMarked) {
+    //    await User.findOneAndUpdate({bookMarkedPost: postId}, {$push: {bookMarkedPost: postId}});
+    //    res.status(200).json({
+    //       success: true,
+    //       message: "bookmarked successfully."
+    //    })
+    //    return;
+    // } else{
+    //    await User.findOneAndUpdate({bookMarkedPost: postId}, {$pull: {bookMarkedPost: postId}});
+
+    //     res.status(200).json({
+    //       success: true,
+    //       message: "post remove from bookmarked."
+    //    })
+    //    return;
+    // }
+  } catch (error) {
+    console.log(`error while adding post into the bookmarked: ${error}`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong :${error}`,
+    });
+    return;
+  }
+};
+
+export const gettingBookmarkedPost = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const bookmarkPost = await User.findById(req.userId).populate(
+      "bookMarkedPost",
+      "title description tags category"
+    ); // only needed fields
+
+    if (!bookmarkPost) {
+      res.status(404).json({
+        success: false,
+        message: "User not found or no bookmarks yet.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      bookmarkedPosts: bookmarkPost.bookMarkedPost,
+    });
+  } catch (error) {
+    console.log(`error while getting bookmarked post: ${error}`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong :${error}`,
+    });
+    return;
+  }
+};
+
+
+export const gettingTrendingPost = async (req: AuthRequest, res: Response): Promise < void > => {
+  try {
+
+        const sevenDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
+        
+        const trendingPost = await Post.find({
+          $and: [
+            {
+              status: "published"
+            },
+            {
+              createdAt: {$gte: sevenDaysAgo}
+            }
+          ]
+        }).limit(5);
+        if(!trendingPost) {
+          res.status(404).json({
+            success: false,
+            message: "Failed to get trending post."
+          })
+          return;
+        }
+
+        res.status(200).json({
+          success: true,
+          trendingPost: trendingPost
+        })
+  } catch (error) {
+    console.log(`error while getting trending post : ${error}`);
     
     res.status(500).json({
       success: false,
-      message: `server error something went wrong: ${error}`
-    })
-    return;
-  }
-}
-
-export const gettingPublishedPost = async (req: AuthRequest, res: Response): Promise < void > => {
-  try {
-      const {publishedPost} = req.query as {
-          publishedPost: string
-      }
-
-      if(!publishedPost) {
-        res.status(400).json({
-            success: false,
-            message: "post status are not present in your url."
-        })
-        return;
-      }
-
-      const post = await Post.find({status: publishedPost});
-      if(!post || post.length <= 0) {
-          res.status(404).json({
-              success: false,
-              message: "failed to get published post Or there is no published post."
-          })
-          return;
-      }
-
-      res.status(200).json({
-          sucess: true,
-          publishedPosts: post
-      })
-
-  } catch (error) {
-    console.log(`error while getting published post: ${error}`);
-    
-    res.status(500).json({
-        success: false,
-        message: `server error something went wrong: ${error}`
+      mesage: `server error something went wrong : ${error}`
     })
     return;
   }
 }
 
 
-export const addingPostInBookMark = async (req: AuthRequest, res: Response): Promise < void > => {
-    try {
-        const {postId} = req.params as {
-          postId: string
-        };
-        if(!postId) {
-            res.status(400).json({
-                success: false,
-                message: "post id are not present in your url."
-            })
-            return;
-        }
-
-        if(!isValidObjectId(postId)) {
-            res.status(400).json({
-                success: false,
-                message: "Invalid post id."
-            })
-            return;
-        }
-
-        const post = await Post.findById(postId);
-        if(!post) {
-            res.status(404).json({
-              success: false,
-              message: "there is no any post are present with this post id."
-            })
-            return;
-        }
-
-        const user =  await User.findOne({bookMarkedPost: postId});
-        // await User.findOne({
-        //   $and: [
-        //     {
-        //       _id: req.userId
-        //     },
-        //     {
-        //       bookMarkedPost: postId
-        //     }
-        //   ]
-        // });
-
-    
-        if(!user) {
-
-           const addedPostInBookMarked = await User.findByIdAndUpdate(req.userId, {$push: {bookMarkedPost: postId}}, {new: true});
-           res.status(200).json({
-              success: true,
-              message: "post bookmarked successfully.",
-              bookmarkedPost: addedPostInBookMarked?.bookMarkedPost
-           })
-           return;
-
-        } else {
-           const removingPostFromBookMarked = await User.findByIdAndUpdate(req.userId, {$push: {bookMarkedPost: postId}}, {new: true});
-
-              res.status(200).json({
-              success: true,
-              message: "post bookmarked successfully.",
-              bookmarkedPost: removingPostFromBookMarked?.bookMarkedPost
-           })
-           return;
-        }
 
 
-
-
-        // const isPostAreBookMarked = user?.bookMarkedPost;
-        // if(!isPostAreBookMarked) {
-        //    await User.findOneAndUpdate({bookMarkedPost: postId}, {$push: {bookMarkedPost: postId}});
-        //    res.status(200).json({
-        //       success: true,
-        //       message: "bookmarked successfully."
-        //    })
-        //    return;
-        // } else{
-        //    await User.findOneAndUpdate({bookMarkedPost: postId}, {$pull: {bookMarkedPost: postId}});
-
-        //     res.status(200).json({
-        //       success: true,
-        //       message: "post remove from bookmarked."
-        //    })
-        //    return;
-        // }
-
-    } catch (error) {
-        console.log(`error while adding post into the bookmarked: ${error}`);
-        
-        res.status(500).json({
-            success: false,
-            message: `server error something went wrong :${error}`
-        })
-        return;
-    }
-}
