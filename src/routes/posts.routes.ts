@@ -14,7 +14,9 @@ import {
   gettingPostByTag,
   gettingDraftPosts,
   gettingPublishedPost,
-  addingPostInBookMark
+  addingPostInBookMark,
+  gettingBookmarkedPost,
+  gettingTrendingPost
 } from "../controllers/post.controller.js";
 import { author } from "../middlewares/author.middleware.js";
 
@@ -40,7 +42,8 @@ route.get("/get-draft-posts", authProtect, gettingDraftPosts);
 route.get("/get-published-post", gettingPublishedPost);
 
 route.post("/bookmark/:postId", authProtect, addingPostInBookMark);
+route.get("/bookmarks", authProtect, gettingBookmarkedPost);
 
-
+route.get("/trending", authProtect, gettingTrendingPost);
 
 export default route;
