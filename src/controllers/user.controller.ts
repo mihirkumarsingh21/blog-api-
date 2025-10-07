@@ -209,7 +209,7 @@ export const gettingAuthUserProfile = async (
       return;
     }
 
-    const user = await User.findById(userId).select("-email -passwordHash");
+    const user = await User.findById(userId).select("name followers following followersC followingC");
     if (!user) {
       res.status(404).json({
         success: false,
@@ -255,65 +255,72 @@ export const followTheUser = async (
       return;
     }
 
-    const isFollowing = await User.findOne({ 
-      $and: [ 
-      {
-        _id: req.userId
-      },
-      {
-        following: userId
-      }
-    ]        
-  });
-
-    if (!isFollowing) {
-      
-      await User.findByIdAndUpdate(userId, {
-        $addToSet: { followers: req.userId },
-        $inc: { followersC: 1}
-      },);
-
-      
-
-      await User.findByIdAndUpdate(req.userId, {
-        $addToSet: { following: userId },
-        $inc: { followingC: 1}
-      });
-
-
-      res.status(200).json({
-        success: true,
-        message: "user follow.",
-      });
-      return;
-
-    } else {
-
-     const updatingUserFollowers = await User.findByIdAndUpdate(userId, {
-        $pull: { followers: req.userId },
-        $inc: { followersC: -1}
-      });
-
-      if(updatingUserFollowers?.followersC && updatingUserFollowers.followersC < 0) {
-        await User.findByIdAndUpdate(userId, {$set: { followersC: 0}});
-      }
-
-     const updatingUserFollowing = await User.findByIdAndUpdate(req.userId, {
-        $pull: { following: userId },
-        $inc: { followingC: -1}
-      });
-
-      if(updatingUserFollowing?.followingC && updatingUserFollowing?.followingC < 0) {
-        await User.findByIdAndUpdate(req.userId, {$set: {followingC: 0}});
-      }
-
-      res.status(200).json({
-        success: true,
-        message: "user unfollow.",
+    if (req.userId === userId) {
+      res.status(400).json({
+        success: false,
+        message: "same user cannot follow each other.",
       });
       return;
     }
 
+    const isFollowing = await User.findOne({
+      $and: [
+        {
+          _id: req.userId,
+        },
+        {
+          following: userId,
+        },
+      ],
+    });
+
+    if (!isFollowing) {
+      const targetUser = await User.findByIdAndUpdate(userId, {
+        $addToSet: { followers: req.userId },
+        $inc: { followersC: 1 },
+      });
+
+      const authUser = await User.findByIdAndUpdate(req.userId, {
+        $addToSet: { following: userId },
+        $inc: { followingC: 1 },
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `${authUser?.name} start following ${targetUser?.name}`,
+      });
+      return;
+    } else {
+      const updatingUserFollowers = await User.findByIdAndUpdate(userId, {
+        $pull: { followers: req.userId },
+        $inc: { followersC: -1 },
+      });
+
+      if (
+        updatingUserFollowers?.followersC &&
+        updatingUserFollowers.followersC < 0
+      ) {
+        await User.findByIdAndUpdate(userId, { $set: { followersC: 0 } });
+      }
+
+      const updatingUserFollowing = await User.findByIdAndUpdate(req.userId, {
+        $pull: { following: userId },
+        $inc: { followingC: -1 },
+      });
+
+      if (
+        updatingUserFollowing?.followingC &&
+        updatingUserFollowing?.followingC < 0
+      ) {
+        await User.findByIdAndUpdate(req.userId, { $set: { followingC: 0 } });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: `${updatingUserFollowing?.name} unfollow ${updatingUserFollowers?.name}`,
+      });
+      return;
+    }
   } catch (error) {
     console.log(`error while follow the user :${error}`);
 
@@ -326,7 +333,97 @@ export const followTheUser = async (
   }
 };
 
+export const gettingFollowers = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = req.params as {
+      userId: string;
+    };
 
+    if (!userId) {
+      res.status(400).json({
+        success: false,
+        message: "user id are not present in your url.",
+      });
+      return;
+    }
+
+    if (!isValidObjectId(userId)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid user id.",
+      });
+      return;
+    }
+
+    const userFollowers = await User.findById(userId)
+      .select("followers")
+      .populate("followers", "name");
+    if (!userFollowers) {
+      res.status(404).json({
+        success: false,
+        message:
+          "failed to get user followers maybe with this id user are not exsit.",
+      });
+      return;
+    }
+
+    
+    res.status(200).json({
+      success: true,
+      userFollowers: userFollowers.followers,
+    });
+  } catch (error) {
+    console.log(`error while getting user followers: ${error}`);
+
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong: ${error}`,
+    });
+    return;
+  }
+};
+
+export const gettingFollowing = async (req: AuthRequest, res: Response): Promise < void > => {
+  try {
+        const {userId} = req.params;
+        if(!userId || !isValidObjectId(userId)) {
+          res.status(400).json({
+            success: false,
+            message: "user id are not present in your url Or invalid user id."
+          })
+          return;
+        }
+
+        const userFollowing = await User.findById(userId).select("following").populate("following", "name");
+        if(!userFollowing) {
+          res.status(400).json({
+            success: false,
+            message: "failed to get user following maybe with this user id user does not exsit"
+          })
+          return;
+        }
+  
+
+        res.status(200).json({
+          success: true,
+          userFollowing: userFollowing.following
+        })
+        
+
+
+  } catch (error) {
+    console.log(`error while getting user following: ${error}`);
+    
+    res.status(500).json({
+      success: false,
+      message: `server error something went wrong: ${error}`
+    })
+    return;
+  }
+}
 
 
 
