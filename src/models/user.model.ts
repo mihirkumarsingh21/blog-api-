@@ -46,12 +46,14 @@ const userSchema = new mongoose.Schema < UserInterface > (
 
     followers: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: "User",
+      default: null
     }],
 
     following: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: "User",
+      default: null
     }],
 
     followersC: {
