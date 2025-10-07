@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser, logoutUser, updatingAuthUserProfile, gettingAuthUserProfile, followTheUser} from "../controllers/user.controller.js";
+import { registerUser, loginUser, logoutUser, updatingAuthUserProfile, gettingAuthUserProfile, followTheUser, gettingFollowers, gettingFollowing} from "../controllers/user.controller.js";
 import { authProtect } from "../middlewares/auth.middleware.js";
 
 
@@ -11,5 +11,9 @@ route.get("/logout", logoutUser);
 route.put("/profile/update", authProtect, updatingAuthUserProfile);
 route.get("/profile/:userId", gettingAuthUserProfile);
 route.patch("/follow/:userId", authProtect, followTheUser);
+
+route.get("/followers/:userId", authProtect, gettingFollowers);
+route.get("/following/:userId", authProtect, gettingFollowing);
+
 
 export default route
