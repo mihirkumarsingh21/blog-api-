@@ -10,6 +10,8 @@ export interface UserInterface {
   followers?: mongoose.Types.ObjectId;
   following?: mongoose.Types.ObjectId;
   bookMarkedPost: mongoose.Types.ObjectId;
+  followersC: number;
+  followingC: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,7 +37,7 @@ const userSchema = new mongoose.Schema < UserInterface > (
 
     bio: {
       type: String,
-      maxlength: 30
+      maxlength: 30,
     },
 
     profilePic: {
@@ -51,6 +53,16 @@ const userSchema = new mongoose.Schema < UserInterface > (
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
     }],
+
+    followersC: {
+      type: Number,
+      default: 0
+    },
+
+    followingC: {
+      type: Number,
+      default: 0
+    },
 
     role: {
       type: String,
