@@ -13,6 +13,11 @@ It covers essential features like authentication, post management, likes, commen
 ## ✨ Features Implemented 
 - 🔐 User Authentication (JWT)  
 - 👥 Role Based Access Control (RBAC)  
+- 🧑‍🔧 Update user profile (bio, avatar, etc.)
+- 👀 View public user profile
+- 🤝 Follow / Unfollow other users
+-👇 View followers list
+-☝️ View following list
 - 📝 CRUD operations for Posts  
 - 👍 Like & Dislike functionality  
 - 💬 Comments system (Add, Update, Delete)  
@@ -20,6 +25,17 @@ It covers essential features like authentication, post management, likes, commen
 - 🔍 Search & Filter posts  
 - 🗑️ Soft Delete for posts (flagging instead of permanent delete)  
 - 👀 Unique Post View Count (per user)  
+- 🕓 Draft and Publish post options
+## 🏷️ Tags & Categories
+- ➕ Add categories to posts
+- 🔍 Fetch posts by specific category
+- ➕ Add tags to posts
+- 🏷️ Fetch posts filtered by tag
+## ⭐ Bookmarks / Favorites
+- 💾 Bookmark / Unbookmark posts
+- 📚 View all bookmarked posts
+## 📊 Trending Posts
+🔥 Get trending posts based on user published between 7 days
 
 ---
 
@@ -39,6 +55,12 @@ It covers essential features like authentication, post management, likes, commen
 | POST   | `/register`  | Register a new user |
 | POST   | `/login`     | Login user |
 | GET    | `/logout`    | Logout user |
+|  🛠️ **PUT**  | `/profile/update`    | 🧑‍🔧 Update authenticated user profile |
+|   👀 **GET**  | `/profile/:userId`  | 🧾 Get public user profile by ID        |
+|  🤝 **PATCH** | `/follow/:userId`   | ➕ Follow or unfollow a user             |
+|   👥 **GET**  | `/followers/:userId`| 👇 Get list of followers for a user     |
+| 🚶‍♂️ **GET** | `/following/:userId`   | ☝️ Get list of users being followed     |
+
 
 ### 📝 Posts
 | Method | Endpoint                     | Middleware         | Description |
@@ -50,6 +72,19 @@ It covers essential features like authentication, post management, likes, commen
 | DELETE | `/delete/:postId`            | authProtect, author| Soft delete a post |
 | GET    | `/search-post`               | authProtect        | Search posts |
 | GET    | `/single-post/:postId`       | authProtect        | Get a single post |
+
+|    Method   | Endpoint                           | Middleware    | Description                                      |
+| :---------: | :--------------------------------- | :------------ | :----------------------------------------------- |
+| 🗂️ **PUT** | `/add-cateory/:postId`             | `authProtect` | ➕ Add a category to a post                       |
+| 🗃️ **GET** | `/posts-by-category/:categoryName` | `authProtect` | 🔍 Get all posts under a specific category       |
+| 🏷️ **PUT** | `/add-tag/:postId`                 | `authProtect` | ➕ Add a tag to a post                            |
+| 🏷️ **GET** | `/post-by-tag/:tagName`            | `authProtect` | 🔎 Get posts filtered by a specific tag          |
+|  📝 **GET** | `/get-draft-posts`                 | `authProtect` | 🕓 Get all draft posts of the authenticated user |
+|  🌍 **GET** | `/get-published-post`              | —             | 📢 Get all published posts                       |
+| 🔖 **POST** | `/bookmark/:postId`                | `authProtect` | 💾 Bookmark a post                               |
+|  📚 **GET** | `/bookmarks`                       | `authProtect` | 🧾 Get all bookmarked posts                      |
+|  🔥 **GET** | `/trending`                        | `authProtect` | 📈 Get trending posts                            |
+
 
 ### 👍 Likes
 | Method | Endpoint                     | Middleware   | Description |
@@ -139,12 +174,7 @@ It covers essential features like authentication, post management, likes, commen
 
 ---
 
-## 📅 Roadmap (Next Features)
-- 🏷️ Tags & Categories for posts  
-- 📰 Draft & Publish posts  
-- ⭐ Bookmarks / Favorites  
-- 📊 Trending posts logic  
-- 👤 User profile (bio, avatar, followers)  
+## 📅 Roadmap (Next Features) 
 - 🛡️ Rate limiting & Caching  
 - 🔔 Notifications system  
 - 🚨 Reporting & Moderation  
