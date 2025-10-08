@@ -7,7 +7,6 @@
 
 🚀 This project is created to **explore and learn TypeScript** by building **Blog API backend**.  
 It covers essential features like authentication, post management, likes, comments, pagination, search, and more.  
-
 ---
 
 ## ✨ Features Implemented 
@@ -36,6 +35,10 @@ It covers essential features like authentication, post management, likes, commen
 - 📚 View all bookmarked posts
 ## 📊 Trending Posts
 🔥 Get trending posts based on user published between 7 days
+
+### 📂 Project Structure
+<img width="1366" height="768" alt="Screenshot 2025-10-08 075407" src="https://github.com/user-attachments/assets/8f5fbbf6-b3c1-48c6-a299-74630ccaa279" />
+<img width="1366" height="768" alt="Screenshot 2025-10-08 075255" src="https://github.com/user-attachments/assets/e2e3af73-74ce-4831-a1cb-bc146de37ab5" />
 
 ---
 
